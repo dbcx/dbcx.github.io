@@ -2,45 +2,53 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>留言板</title>
-	<style>
-		a{
-			color: black;
-			text-decoration:none;
-		}
-	</style>
+	<title>LOGIN</title>
+	<link rel="stylesheet" href="./css/style.css">	
+	<SCRIPT language=javascript>  
+			function CheckPost()  
+			{  
+			    if (myform.username.value=="")  
+			    {  
+			        alert("请填写用户名");  
+			        myform.username.focus();  
+			        return false;  
+			    }  
+			    if (myform.password.value=="")  
+			    {  
+			        alert("密码不能为空");  
+			        myform.password.focus();  
+			        return false;  
+			    }  
+			} 		       
+	</SCRIPT>  
 </head>
 <body>
 	<?php 
-		require ('cklog.php');
+		session_start(); 
+		unset($_SESSION['username']);
+		if (@!empty($_POST['password']) && !empty($_POST['username'])) {
+			//判断输入，并启用session
+			require ("conn.php");
+			$sql="select * from user where username='$_POST[username]' and password='$_POST[password]'";
+			$result=mysqli_query($con,$sql);
+		    $row = mysqli_fetch_assoc($result);
+			if ($row>0) {
+				$_SESSION['username']=$_POST['username'];
+				header('location:index.php');				
+			}else{
+				echo "<script>alert('请输入正确的用户名或者密码！');</script>";
+			}
+		}
 	 ?>
-	<div align="right"><p style="color: gray;">你好 <a style="color:gray;" href="personal.php"> <?php echo $_SESSION['username']; ?></a>, <a style="color:gray;" href="login.php">退出</a></p></div>
-	<h1 align="center"><a href="add.php">留言</a>||<a href="index.php">展示</a>
-	</h1> <hr width="75%" /><hr width="75%" /><br />
-	<span style="font-family:Comic Sans MS;font-size:14px;">
-		<?php  
-		  require("conn.php");  
-		?>  
-		<table width=500  align="center" cellpadding="6" cellspacing="2" bgcolor="#eff3ff">  
-			<?php     
-				  $sql = "SELECT * FROM msg order by lastdate desc";  
-				  mysqli_query($con,"set names utf8"); 
-				  $query = mysqli_query($con,$sql);  
-				  while($row = mysqli_fetch_array($query)){  
-			?>  
-			  
-			  <tr bgcolor="#eff3ff">  
-			 	 <td>
-				  	<b><big> 标题：<?= $row['title']?></big><b/> 
-				  	<b><sub> 用户：<?= $row['username']?></sub></b>
-			    </td>
-			    <td align="right"><?= $row['lastdate'] ?></td>
-			  </tr>  
-			  <tr bgColor="#ffffff">  
-			  <td colspan="2">内容：<?= toHtmlcode($row['content'])?></td>  
-			  </tr>  
-			<?php } ?>  
-		</table>  
-	</span> 
+	<div class="by">
+		<h1><b>LOGIN <a style="text-decoration: none;color:black;" href="register.php">?</a></b></h1>
+		<form name="myform" method="post" onsubmit="CheckPost();">
+				<input type="text" name="username" placeholder="用户名">
+				<br>
+				<input type="password" name="password" placeholder="密码">
+				<br>
+				<input type="submit" value=">>>" >
+		</form>
+	</div>
 </body>
-</html>	
+</html>
